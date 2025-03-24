@@ -8,7 +8,3 @@ CREATE TABLE images (
     created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_date DATETIME DEFAULT CURRENT_TIMESTAMP
 );
-
-INSERT INTO images (version, name, status) VALUES ('v1.0', 'Project A', 'PENDING');
-INSERT INTO images (version, name, status) VALUES ('v1.1', 'Project B', 'FAILED');
-INSERT INTO images (version, name, status) VALUES ('v1.2', 'Project C', 'COMPLETED');
