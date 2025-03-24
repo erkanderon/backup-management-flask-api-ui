@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backup-api-ui-pvc
+  namespace: minio
+spec:
+  accessModes:
+    - ReadWriteOnce # Or ReadOnlyMany, ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi # Request 1 Gigabyte of storage
+  storageClassName: longhorn # Or another storage class, if available
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backup-api-ui
+  namespace: minio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backup-api-ui
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: backup-api-ui
+    spec:
+      containers:
+        - name: backup-api-ui
+          image: registry.tr.zip.co/backup-api-ui:1.0.0
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: sqlitedb
+              mountPath: /src/db
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+      volumes:
+        - name: sqlitedb
+          persistentVolumeClaim:
+            claimName: backup-api-ui-pvc
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backup-api-ui-svc
+  namespace: minio
+spec:
+  selector:
+    app: backup-api-ui
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
