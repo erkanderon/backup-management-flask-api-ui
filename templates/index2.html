@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flask Render Örneği</title>
+</head>
+<body>
+    <h1>Merhaba, {{ name }}!</h1>
+    <p>Yaşınız: {{ age }}</p>
+    <ul>
+        {% for item in items %}
+            <li>{{ item }}</li>
+        {% endfor %}
+        {% for image in images %}
+            <li>
+                {{ image['name'] }}
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
